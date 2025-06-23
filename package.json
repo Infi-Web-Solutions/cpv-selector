@@ -1,0 +1,1 @@
+{"name":"cpv-tree-selector","version":"1.0.4","description":"CPV Tree Selector component for WeWeb","main":"index.js","scripts":{"build":"weweb build","serve":"weweb serve"},"dependencies":{"lodash":"^4.17.21"},"devDependencies":{"@weweb/cli":"^3.8.13","webpack-cli":"^6.0.1"},"keywords":["weweb","component","cpv","tree","selector"],"author":"","license":"MIT"}
