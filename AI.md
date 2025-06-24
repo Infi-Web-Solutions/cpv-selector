@@ -39,6 +39,7 @@ A specialized dropdown component for navigating and selecting items from the Com
 - maxDropdownHeight: string - CSS length value for dropdown height (default: "400px")
 - triggerBackgroundColor: string - Background color for the trigger button (default: "#FFFFFF")
 - triggerTextColor: string - Text color for the trigger button (default: "#000000")
+- triggerHeight: string - Height of the trigger button (default: "auto" for dynamic height)
 - accentColor: string - Color used for highlights and interactive elements (default: "#4F46E5")
 
 ***Events:***

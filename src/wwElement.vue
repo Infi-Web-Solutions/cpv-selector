@@ -1,5 +1,10 @@
 <template>
   <div class="cpv-tree-selector" :style="colorConfig">
+    <!-- 
+      Button height can be configured via content.triggerHeight
+      Examples: '44px', '60px', 'auto' (for dynamic height)
+      If not set, defaults to auto with 44px min-height
+    -->
     <button
       class="cpv-tree-selector__trigger"
       @click="toggleDropdown"
@@ -8,7 +13,9 @@
       ref="triggerRef"
       :style="{
         backgroundColor: content.triggerBackgroundColor || '#FFFFFF',
-        color: content.triggerTextColor || '#000000'
+        color: content.triggerTextColor || '#000000',
+        height: content.triggerHeight || 'auto',
+        minHeight: content.triggerHeight ? 'unset' : '44px'
       }"
     >
       <div class="cpv-tree-selector__trigger-content">
@@ -1126,6 +1133,8 @@ export default {
     text-align: left;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
+    word-wrap: break-word;
+    white-space: normal;
 
     &:hover {
       border-color: #d1d5db;
@@ -1141,16 +1150,24 @@ export default {
       display: flex;
       align-items: center;
       gap: 4px;
+      flex: 1;
+      min-width: 0;
+      word-wrap: break-word;
+      white-space: normal;
     }
 
     &-label {
       font-weight: 500;
+      word-wrap: break-word;
+      white-space: normal;
     }
 
     &-count {
       font-size: 12px;
       font-weight: 600;
       color: var(--primary-color);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     &-icon {
@@ -1158,6 +1175,8 @@ export default {
       align-items: center;
       justify-content: center;
       color: #6b7280;
+      flex-shrink: 0;
+      margin-left: 8px;
     }
   }
 

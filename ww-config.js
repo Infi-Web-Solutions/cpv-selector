@@ -8,14 +8,14 @@ export default {
     // ─── OUTPUT ──────────────────────────────────────────────────────────────
     selectedCpvCodes: {
       label: { en: 'Selected CPV Codes' },
-      type: 'variable',          // ← lowercase, makes this an “Outputs” slot
+      type: 'variable',          // ← lowercase, makes this an "Outputs" slot
       section: 'outputs',        // ← groups it under Outputs in the panel
       bindable: true,
       defaultValue: '',          // ← empty string default for a bound var
       /* wwEditor:start */
       bindingValidation: {
         type: 'array',
-        tooltip: 'Bind to a page‐variable of type Array to receive the selected CPV codes'
+        tooltip: 'Bind to a page-variable of type Array to receive the selected CPV codes'
       },
       propertyHelp: {
         tooltip: 'The page variable that will be updated with your selection'
@@ -314,6 +314,22 @@ export default {
       },
       propertyHelp: {
         tooltip: 'Text color of the dropdown trigger'
+      }
+      /* wwEditor:end */
+    },
+    triggerHeight: {
+      label: { en: 'Trigger Button Height' },
+      type: 'length',
+      section: 'style',
+      bindable: true,
+      defaultValue: 'auto',
+      /* wwEditor:start */
+      bindingValidation: {
+        type: 'string',
+        tooltip: 'CSS length for the trigger button height (e.g., "44px", "60px", "auto")'
+      },
+      propertyHelp: {
+        tooltip: 'Height of the dropdown trigger button. Use "auto" for dynamic height based on content.'
       }
       /* wwEditor:end */
     },
