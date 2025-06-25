@@ -211,6 +211,7 @@
 </template>
 
 <script>
+import './tree-global.css';
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
 // Safe import with fallbacks

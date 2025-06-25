@@ -1,0 +1,113 @@
+/* TreeNode and fallback tree styles - GLOBAL! */
+.tree-node {
+  position: relative;
+  outline: none;
+  contain: layout style;
+}
+.tree-node:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.tree-node__content {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  min-height: 36px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+.tree-node__content:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.tree-node__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 4px;
+  color: #6b7280;
+  font-size: 12px;
+  transition: background-color 0.15s ease;
+}
+.tree-node__toggle:focus-visible {
+  outline: 2px solid #4f46e5;
+  border-radius: 4px;
+}
+.tree-node__toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+.tree-node__toggle-text {
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+.tree-node__spacer {
+  width: 24px;
+  margin-right: 4px;
+}
+.tree-node__checkbox {
+  margin-right: 8px;
+}
+.tree-node__checkbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.tree-node__label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex: 1;
+  overflow: hidden;
+}
+.tree-node__code {
+  font-weight: 500;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.tree-node__description {
+  color: #4b5563;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-node__children {
+  position: relative;
+}
+.tree-node__children::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #e5e7eb;
+}
+.tree-node--selected > .tree-node__content {
+  background-color: rgba(79, 70, 229, 0.1);
+}
+.tree-node--highlighted > .tree-node__content .tree-node__code,
+.tree-node--highlighted > .tree-node__content .tree-node__description {
+  background-color: rgba(255, 213, 79, 0.3);
+}
+
+/* Fallback node styles */
+.cpv-tree-selector__node--child,
+.cpv-tree-selector__node--grandchild {
+  padding-left: 24px;
+  border-left: 1px solid #e5e7eb;
+  margin-left: 12px;
+}
+.cpv-tree-selector__spacer {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+} 
