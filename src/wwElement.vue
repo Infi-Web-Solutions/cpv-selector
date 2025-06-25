@@ -1058,6 +1058,19 @@ export default {
     onMounted(async () => {
       console.log('🚀 Component mounting...');
       
+      // Set --primary-light globally for selected node background
+      const setPrimaryLightGlobal = () => {
+        const accentColor = props.content.accentColor || '#4F46E5';
+        const hexToRgba = (hex, alpha) => {
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+        document.documentElement.style.setProperty('--primary-light', hexToRgba(accentColor, 0.1));
+      };
+      setPrimaryLightGlobal();
+
       await loadIcons();
       await loadTreeData();
 
@@ -1096,6 +1109,18 @@ export default {
       } else {
         console.log('⏳ Waiting for tree data to load before initial event');
       }
+    });
+
+    // Also update global variable if accentColor changes
+    watch(() => props.content.accentColor, () => {
+      const accentColor = props.content.accentColor || '#4F46E5';
+      const hexToRgba = (hex, alpha) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      };
+      document.documentElement.style.setProperty('--primary-light', hexToRgba(accentColor, 0.1));
     });
 
     onBeforeUnmount(() => {
