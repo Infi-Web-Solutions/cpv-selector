@@ -213,14 +213,18 @@
 <script>
 import './tree-global.css';
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-// Revert to dynamic require for components
+
+// Safe import with fallbacks
 let TreeNode, VirtualizedTreeList, SearchInput, SelectedBadges;
 let findMatchingNodes, getAllDescendantCodes, findNodeByCode;
 let debounce;
 
 try {
+  // Try to import lodash debounce
   debounce = require('lodash/debounce') || require('lodash').debounce;
 } catch (error) {
+  console.warn('Lodash not available, using fallback debounce');
+  // Fallback debounce implementation
   debounce = (func, wait) => {
     let timeout;
     return function executedFunction(...args) {
@@ -237,21 +241,28 @@ try {
 try {
   TreeNode = require('./components/TreeNode.vue').default;
 } catch (error) {
+  console.warn('TreeNode component not found');
   TreeNode = null;
 }
+
 try {
   VirtualizedTreeList = require('./components/VirtualizedTreeList.vue').default;
 } catch (error) {
+  console.warn('VirtualizedTreeList component not found');
   VirtualizedTreeList = null;
 }
+
 try {
   SearchInput = require('./components/SearchInput.vue').default;
 } catch (error) {
+  console.warn('SearchInput component not found');
   SearchInput = null;
 }
+
 try {
   SelectedBadges = require('./components/SelectedBadges.vue').default;
 } catch (error) {
+  console.warn('SelectedBadges component not found');
   SelectedBadges = null;
 }
 
@@ -344,6 +355,45 @@ export default {
   setup(props, { emit }) {
     // Flag to track if we're updating from props
     const isUpdatingFromProps = ref(false);
+
+    // Component availability checks with better error handling
+    const treeNodeComponent = ref(false);
+    const virtualizedTreeComponent = ref(false);
+    const searchInputComponent = ref(false);
+    const selectedBadgesComponent = ref(false);
+
+    // Check component availability with retry mechanism
+    const checkComponentAvailability = () => {
+      try {
+        treeNodeComponent.value = !!TreeNode;
+        virtualizedTreeComponent.value = !!VirtualizedTreeList;
+        searchInputComponent.value = !!SearchInput;
+        selectedBadgesComponent.value = !!SelectedBadges;
+        
+        console.log('🔍 Component availability:', {
+          treeNode: treeNodeComponent.value,
+          virtualized: virtualizedTreeComponent.value,
+          searchInput: searchInputComponent.value,
+          selectedBadges: selectedBadgesComponent.value
+        });
+      } catch (error) {
+        console.warn('Error checking component availability:', error);
+        // Set all to false as fallback
+        treeNodeComponent.value = false;
+        virtualizedTreeComponent.value = false;
+        searchInputComponent.value = false;
+        selectedBadgesComponent.value = false;
+      }
+    };
+
+    // Editor state
+    const isEditing = computed(() => {
+      /* wwEditor:start */
+      return props.wwEditorState?.isEditing || false;
+      /* wwEditor:end */
+      // eslint-disable-next-line no-unreachable
+      return false;
+    });
 
     // Component state
     const isOpen = ref(false);
@@ -1057,6 +1107,9 @@ export default {
     onMounted(async () => {
       console.log('🚀 Component mounting...');
       
+      // Check component availability first
+      checkComponentAvailability();
+      
       await loadIcons();
       await loadTreeData();
 
@@ -1121,6 +1174,10 @@ export default {
       chevronUpIcon,
       closeIcon,
       isEditing,
+      treeNodeComponent,
+      virtualizedTreeComponent,
+      searchInputComponent,
+      selectedBadgesComponent,
       toggleDropdown,
       openDropdown,
       closeDropdown,
@@ -1128,6 +1185,7 @@ export default {
       toggleNodeSelection,
       clearSelection,
       testEmitTrigger, // For debugging
+      checkComponentAvailability, // For debugging and retry
       // REMOVED: testJavaScriptAccess,
       // REMOVED: getCurrentSelection,
       // REMOVED: setSelection,
@@ -1484,6 +1542,11 @@ export default {
 
     &:focus-visible {
       outline: 2px solid #4f46e5;
+      border-radius: 4px;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
       border-radius: 4px;
     }
 
