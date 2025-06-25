@@ -91,7 +91,7 @@
               :key="node.code"
               class="cpv-tree-selector__node"
             >
-              <div class="cpv-tree-selector__node-content">
+              <div class="cpv-tree-selector__node-content" :style="{ paddingLeft: '0px', display: 'flex', alignItems: 'center', minHeight: '36px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.15s ease' }">
                 <button 
                   v-if="node.children && node.children.length > 0"
                   @click="toggleNodeExpansion(node.code)"
@@ -123,7 +123,7 @@
                   :key="child.code"
                   class="cpv-tree-selector__node cpv-tree-selector__node--child"
                 >
-                  <div class="cpv-tree-selector__node-content">
+                  <div class="cpv-tree-selector__node-content" :style="{ paddingLeft: '24px', display: 'flex', alignItems: 'center', minHeight: '36px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.15s ease' }">
                     <button 
                       v-if="child.children && child.children.length > 0"
                       @click="toggleNodeExpansion(child.code)"
@@ -155,7 +155,7 @@
                       :key="grandchild.code"
                       class="cpv-tree-selector__node cpv-tree-selector__node--grandchild"
                     >
-                      <div class="cpv-tree-selector__node-content">
+                      <div class="cpv-tree-selector__node-content" :style="{ paddingLeft: '48px', display: 'flex', alignItems: 'center', minHeight: '36px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.15s ease' }">
                         <span class="cpv-tree-selector__spacer"></span>
                         <input 
                           type="checkbox"

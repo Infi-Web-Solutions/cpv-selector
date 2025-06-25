@@ -12,7 +12,7 @@
       @click="handleNodeClick"
       @keydown="handleKeyDown"
     >
-      <div class="tree-node__content" :style="{ paddingLeft: `${depth * 16}px` }">
+      <div class="tree-node__content" :style="getNodeContentStyle">
         <button
           v-if="hasChildren"
           class="tree-node__toggle"
@@ -188,6 +188,16 @@
         return nodeMatchesSearch(props.node, normalizedSearchTerm);
       });
   
+      const getNodeContentStyle = computed(() => ({
+        paddingLeft: `${props.depth * 16}px`,
+        display: 'flex',
+        alignItems: 'center',
+        minHeight: '36px',
+        cursor: 'pointer',
+        borderRadius: '4px',
+        transition: 'background-color 0.15s ease',
+      }));
+  
       // Watch for expansion to lazy load children with immediate trigger
       watch(isExpanded, (expanded) => {
         if (expanded && !shouldRenderChildren.value) {
@@ -265,7 +275,8 @@
         toggleExpand,
         toggleSelect,
         handleNodeClick,
-        handleKeyDown
+        handleKeyDown,
+        getNodeContentStyle
       };
     }
   };
