@@ -86,35 +86,35 @@
             />
           </template>
           <template v-else>
-            <div 
-              v-for="node in filteredTreeData" 
-              :key="node.code"
-              class="cpv-tree-selector__node"
-            >
+              <div 
+                v-for="node in filteredTreeData" 
+                :key="node.code"
+                class="cpv-tree-selector__node"
+              >
               <div class="cpv-tree-selector__node-content" :style="{ paddingLeft: '0px', display: 'flex', alignItems: 'center', minHeight: '36px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.15s ease' }">
-                <button 
-                  v-if="node.children && node.children.length > 0"
-                  @click="toggleNodeExpansion(node.code)"
-                  class="cpv-tree-selector__expand-btn"
+                  <button 
+                    v-if="node.children && node.children.length > 0"
+                    @click="toggleNodeExpansion(node.code)"
+                    class="cpv-tree-selector__expand-btn"
                   :aria-expanded="expandedNodes.has(node.code)"
                   :aria-label="expandedNodes.has(node.code) ? 'Collapse' : 'Expand'"
-                >
-                  {{ expandedNodes.has(node.code) ? '−' : '+' }}
-                </button>
+                  >
+                    {{ expandedNodes.has(node.code) ? '−' : '+' }}
+                  </button>
                 <span v-else class="cpv-tree-selector__spacer"></span>
                 
-                <input 
-                  type="checkbox"
-                  :checked="selectedCodes.has(node.code)"
-                  @change="toggleNodeSelection(node)"
-                  class="cpv-tree-selector__checkbox"
+                  <input 
+                    type="checkbox"
+                    :checked="selectedCodes.has(node.code)"
+                    @change="toggleNodeSelection(node)"
+                    class="cpv-tree-selector__checkbox"
                   :id="`fallback-${node.code}`"
-                />
+                  />
                 <label :for="`fallback-${node.code}`" class="cpv-tree-selector__node-label">
                   <span class="cpv-tree-selector__node-code">{{ node.code }}</span>
                   <span class="cpv-tree-selector__node-desc">{{ node.description }}</span>
                 </label>
-              </div>
+                </div>
               
               <!-- Render children for fallback -->
               <div v-if="node.children && node.children.length > 0 && expandedNodes.has(node.code)" class="cpv-tree-selector__children">
@@ -1492,6 +1492,11 @@ export default {
 
     &:focus-visible {
       outline: 2px solid #4f46e5;
+      border-radius: 4px;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
       border-radius: 4px;
     }
 
