@@ -1495,11 +1495,6 @@ export default {
       border-radius: 4px;
     }
 
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-      border-radius: 4px;
-    }
-
     &-text {
       font-family: monospace;
       font-size: 12px;
@@ -1550,7 +1545,7 @@ export default {
 
   &--selected {
     > .tree-node__content {
-      background-color: rgba(79, 70, 229, 0.1);
+      background-color: var(--primary-light);
     }
   }
 
