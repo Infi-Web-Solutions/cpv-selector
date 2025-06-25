@@ -213,21 +213,14 @@
 <script>
 import './tree-global.css';
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import TreeNode from './components/TreeNode.vue';
-import VirtualizedTreeList from './components/VirtualizedTreeList.vue';
-import SearchInput from './components/SearchInput.vue';
-import SelectedBadges from './components/SelectedBadges.vue';
-
-// Safe import with fallbacks
+// Revert to dynamic require for components
+let TreeNode, VirtualizedTreeList, SearchInput, SelectedBadges;
 let findMatchingNodes, getAllDescendantCodes, findNodeByCode;
 let debounce;
 
 try {
-  // Try to import lodash debounce
   debounce = require('lodash/debounce') || require('lodash').debounce;
 } catch (error) {
-  console.warn('Lodash not available, using fallback debounce');
-  // Fallback debounce implementation
   debounce = (func, wait) => {
     let timeout;
     return function executedFunction(...args) {
@@ -239,6 +232,27 @@ try {
       timeout = setTimeout(later, wait);
     };
   };
+}
+
+try {
+  TreeNode = require('./components/TreeNode.vue').default;
+} catch (error) {
+  TreeNode = null;
+}
+try {
+  VirtualizedTreeList = require('./components/VirtualizedTreeList.vue').default;
+} catch (error) {
+  VirtualizedTreeList = null;
+}
+try {
+  SearchInput = require('./components/SearchInput.vue').default;
+} catch (error) {
+  SearchInput = null;
+}
+try {
+  SelectedBadges = require('./components/SelectedBadges.vue').default;
+} catch (error) {
+  SelectedBadges = null;
 }
 
 try {
@@ -307,10 +321,10 @@ try {
 export default {
   name: 'CpvTreeSelector',
   components: {
-    TreeNode,
-    VirtualizedTreeList,
-    SearchInput,
-    SelectedBadges
+    ...(TreeNode && { TreeNode }),
+    ...(VirtualizedTreeList && { VirtualizedTreeList }),
+    ...(SearchInput && { SearchInput }),
+    ...(SelectedBadges && { SelectedBadges })
   },
   props: {
     content: {
