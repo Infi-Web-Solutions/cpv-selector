@@ -65,7 +65,44 @@
   
   <script>
   import { computed, ref, watch, nextTick } from 'vue';
-  import { getNodeSelectionState, nodeMatchesSearch, normalizeString } from '../utils/treeUtils';
+  
+  // Fallback implementations for tree utilities
+  const getNodeSelectionState = (node, selectedCodes) => {
+    if (!node || !selectedCodes) return 'unchecked';
+    
+    if (selectedCodes.has(node.code)) return 'checked';
+    
+    if (node.children?.length) {
+      const allChildrenSelected = node.children.every(child => {
+        if (child.children?.length) {
+          return getNodeSelectionState(child, selectedCodes) === 'checked';
+        }
+        return selectedCodes.has(child.code);
+      });
+      
+      if (allChildrenSelected) return 'checked';
+      
+      const anyChildrenSelected = node.children.some(child => {
+        if (child.children?.length) {
+          return getNodeSelectionState(child, selectedCodes) !== 'unchecked';
+        }
+        return selectedCodes.has(child.code);
+      });
+      
+      if (anyChildrenSelected) return 'indeterminate';
+    }
+    
+    return 'unchecked';
+  };
+  
+  const nodeMatchesSearch = (node, searchTerm) => {
+    if (!searchTerm || !node) return false;
+    const code = (node.code || '').toLowerCase();
+    const description = (node.description || '').toLowerCase();
+    return code.includes(searchTerm.toLowerCase()) || description.includes(searchTerm.toLowerCase());
+  };
+  
+  const normalizeString = (str) => str.toLowerCase().trim();
   
   export default {
     name: 'TreeNode',
@@ -154,10 +191,8 @@
       // Watch for expansion to lazy load children with immediate trigger
       watch(isExpanded, (expanded) => {
         if (expanded && !shouldRenderChildren.value) {
-          // Use requestAnimationFrame for smooth rendering
-        
-          
-          requestAnimationFrame(() => {
+          // Use nextTick for smooth rendering
+          nextTick(() => {
             shouldRenderChildren.value = true;
           });
         }
@@ -167,8 +202,8 @@
       watch(() => props.searchPaths, (paths) => {
         if (paths?.has(props.node?.code) && !shouldRenderChildren.value) {
           nextTick(() => {
-    shouldRenderChildren.value = true;
-  });
+            shouldRenderChildren.value = true;
+          });
         }
       }, { deep: true });
   

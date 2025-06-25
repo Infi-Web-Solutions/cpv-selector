@@ -70,9 +70,8 @@
               @toggle-select="toggleNodeSelection"
             />
           </template>
-          <template v-else>
+          <template v-else-if="treeNodeComponent">
             <TreeNode
-              v-if="treeNodeComponent"
               v-for="node in filteredTreeData"
               :key="node.code"
               :node="node"
@@ -85,28 +84,93 @@
               @toggle-expand="toggleNodeExpansion"
               @toggle-select="toggleNodeSelection"
             />
-            <div v-else>
-              <div 
-                v-for="node in filteredTreeData" 
-                :key="node.code"
-                class="cpv-tree-selector__node"
-              >
-                <div class="cpv-tree-selector__node-content">
-                  <button 
-                    v-if="node.children && node.children.length > 0"
-                    @click="toggleNodeExpansion(node.code)"
-                    class="cpv-tree-selector__expand-btn"
-                  >
-                    {{ expandedNodes.has(node.code) ? '−' : '+' }}
-                  </button>
-                  <input 
-                    type="checkbox"
-                    :checked="selectedCodes.has(node.code)"
-                    @change="toggleNodeSelection(node)"
-                    class="cpv-tree-selector__checkbox"
-                  />
+          </template>
+          <template v-else>
+            <div 
+              v-for="node in filteredTreeData" 
+              :key="node.code"
+              class="cpv-tree-selector__node"
+            >
+              <div class="cpv-tree-selector__node-content">
+                <button 
+                  v-if="node.children && node.children.length > 0"
+                  @click="toggleNodeExpansion(node.code)"
+                  class="cpv-tree-selector__expand-btn"
+                  :aria-expanded="expandedNodes.has(node.code)"
+                  :aria-label="expandedNodes.has(node.code) ? 'Collapse' : 'Expand'"
+                >
+                  {{ expandedNodes.has(node.code) ? '−' : '+' }}
+                </button>
+                <span v-else class="cpv-tree-selector__spacer"></span>
+                
+                <input 
+                  type="checkbox"
+                  :checked="selectedCodes.has(node.code)"
+                  @change="toggleNodeSelection(node)"
+                  class="cpv-tree-selector__checkbox"
+                  :id="`fallback-${node.code}`"
+                />
+                <label :for="`fallback-${node.code}`" class="cpv-tree-selector__node-label">
                   <span class="cpv-tree-selector__node-code">{{ node.code }}</span>
                   <span class="cpv-tree-selector__node-desc">{{ node.description }}</span>
+                </label>
+              </div>
+              
+              <!-- Render children for fallback -->
+              <div v-if="node.children && node.children.length > 0 && expandedNodes.has(node.code)" class="cpv-tree-selector__children">
+                <div 
+                  v-for="child in node.children" 
+                  :key="child.code"
+                  class="cpv-tree-selector__node cpv-tree-selector__node--child"
+                >
+                  <div class="cpv-tree-selector__node-content">
+                    <button 
+                      v-if="child.children && child.children.length > 0"
+                      @click="toggleNodeExpansion(child.code)"
+                      class="cpv-tree-selector__expand-btn"
+                      :aria-expanded="expandedNodes.has(child.code)"
+                      :aria-label="expandedNodes.has(child.code) ? 'Collapse' : 'Expand'"
+                    >
+                      {{ expandedNodes.has(child.code) ? '−' : '+' }}
+                    </button>
+                    <span v-else class="cpv-tree-selector__spacer"></span>
+                    
+                    <input 
+                      type="checkbox"
+                      :checked="selectedCodes.has(child.code)"
+                      @change="toggleNodeSelection(child)"
+                      class="cpv-tree-selector__checkbox"
+                      :id="`fallback-${child.code}`"
+                    />
+                    <label :for="`fallback-${child.code}`" class="cpv-tree-selector__node-label">
+                      <span class="cpv-tree-selector__node-code">{{ child.code }}</span>
+                      <span class="cpv-tree-selector__node-desc">{{ child.description }}</span>
+                    </label>
+                  </div>
+                  
+                  <!-- Render grandchildren for fallback -->
+                  <div v-if="child.children && child.children.length > 0 && expandedNodes.has(child.code)" class="cpv-tree-selector__children">
+                    <div 
+                      v-for="grandchild in child.children" 
+                      :key="grandchild.code"
+                      class="cpv-tree-selector__node cpv-tree-selector__node--grandchild"
+                    >
+                      <div class="cpv-tree-selector__node-content">
+                        <span class="cpv-tree-selector__spacer"></span>
+                        <input 
+                          type="checkbox"
+                          :checked="selectedCodes.has(grandchild.code)"
+                          @change="toggleNodeSelection(grandchild)"
+                          class="cpv-tree-selector__checkbox"
+                          :id="`fallback-${grandchild.code}`"
+                        />
+                        <label :for="`fallback-${grandchild.code}`" class="cpv-tree-selector__node-label">
+                          <span class="cpv-tree-selector__node-code">{{ grandchild.code }}</span>
+                          <span class="cpv-tree-selector__node-desc">{{ grandchild.description }}</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -291,11 +355,35 @@ export default {
     // Flag to track if we're updating from props
     const isUpdatingFromProps = ref(false);
 
-    // Component availability checks
-    const treeNodeComponent = ref(!!TreeNode);
-    const virtualizedTreeComponent = ref(!!VirtualizedTreeList);
-    const searchInputComponent = ref(!!SearchInput);
-    const selectedBadgesComponent = ref(!!SelectedBadges);
+    // Component availability checks with better error handling
+    const treeNodeComponent = ref(false);
+    const virtualizedTreeComponent = ref(false);
+    const searchInputComponent = ref(false);
+    const selectedBadgesComponent = ref(false);
+
+    // Check component availability with retry mechanism
+    const checkComponentAvailability = () => {
+      try {
+        treeNodeComponent.value = !!TreeNode;
+        virtualizedTreeComponent.value = !!VirtualizedTreeList;
+        searchInputComponent.value = !!SearchInput;
+        selectedBadgesComponent.value = !!SelectedBadges;
+        
+        console.log('🔍 Component availability:', {
+          treeNode: treeNodeComponent.value,
+          virtualized: virtualizedTreeComponent.value,
+          searchInput: searchInputComponent.value,
+          selectedBadges: selectedBadgesComponent.value
+        });
+      } catch (error) {
+        console.warn('Error checking component availability:', error);
+        // Set all to false as fallback
+        treeNodeComponent.value = false;
+        virtualizedTreeComponent.value = false;
+        searchInputComponent.value = false;
+        selectedBadgesComponent.value = false;
+      }
+    };
 
     // Editor state
     const isEditing = computed(() => {
@@ -824,15 +912,24 @@ export default {
     };
 
     const toggleNodeExpansion = (nodeCode) => {
+      console.log('🔄 toggleNodeExpansion called for:', nodeCode);
+      
       // Use nextTick for smooth expansion
       nextTick(() => {
         const newExpandedNodes = new Set(expandedNodes.value);
         if (newExpandedNodes.has(nodeCode)) {
           newExpandedNodes.delete(nodeCode);
+          console.log('❌ Collapsed node:', nodeCode);
         } else {
           newExpandedNodes.add(nodeCode);
+          console.log('✅ Expanded node:', nodeCode);
         }
         expandedNodes.value = newExpandedNodes;
+        
+        // Force a re-render to ensure children are properly displayed
+        nextTick(() => {
+          console.log('🔄 Expanded nodes after toggle:', Array.from(expandedNodes.value));
+        });
       });
     };
 
@@ -1007,6 +1104,11 @@ export default {
 
     // Initialize
     onMounted(async () => {
+      console.log('🚀 Component mounting...');
+      
+      // Check component availability first
+      checkComponentAvailability();
+      
       await loadIcons();
       await loadTreeData();
 
@@ -1082,6 +1184,7 @@ export default {
       toggleNodeSelection,
       clearSelection,
       testEmitTrigger, // For debugging
+      checkComponentAvailability, // For debugging and retry
       // REMOVED: testJavaScriptAccess,
       // REMOVED: getCurrentSelection,
       // REMOVED: setSelection,
@@ -1113,7 +1216,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+/* Global styles for tree nodes - these need to be global for proper rendering */
 .cpv-tree-selector {
   position: relative;
   width: 100%;
@@ -1185,7 +1289,6 @@ export default {
     top: calc(100% + 4px);
     left: 0;
     width: 100%;
-    //max-height: var(--max-dropdown-height, 400px);
     background-color: white;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
@@ -1214,62 +1317,12 @@ export default {
     }
   }
 
-  &__selected {
-    padding: 8px 12px;
-    border-bottom: 1px solid #e5e7eb;
-    max-height: 80px;
-    overflow-y: auto;
-
-    &-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-  }
-
-  &__badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background-color: #f3f4f6;
-    border-radius: 4px;
-    font-size: 12px;
-
-    &-remove {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 2px;
-
-      &:hover {
-        background-color: #e5e7eb;
-      }
-    }
-  }
-
   &__tree {
     flex: 1;
     overflow-y: auto;
     padding: 8px 0;
     min-height: 200px;
     max-height: 300px;
-
-    // Add selected state highlighting for tree nodes
-    :deep(.tree-node--selected > .tree-node__content) {
-      background-color: var(--primary-light);
-      border-left: 3px solid var(--primary-color);
-    }
-
-    :deep(.tree-node__checkbox input:checked) {
-      accent-color: var(--primary-color);
-    }
   }
 
   &__node {
@@ -1280,7 +1333,7 @@ export default {
       display: flex;
       align-items: center;
       gap: 8px;
-      transform: translateZ(0); /* May improve font rendering */
+      transform: translateZ(0);
     }
 
     &-code {
@@ -1292,6 +1345,26 @@ export default {
     &-desc {
       font-size: 12px;
       color: #6b7280;
+    }
+
+    &-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    &--child {
+      padding-left: 24px;
+      border-left: 1px solid #e5e7eb;
+      margin-left: 12px;
+    }
+
+    &--grandchild {
+      padding-left: 24px;
+      border-left: 1px solid #e5e7eb;
+      margin-left: 12px;
     }
   }
 
@@ -1327,33 +1400,6 @@ export default {
     font-size: 14px;
   }
 
-  &__footer {
-    padding: 8px 12px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  &__clear-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent-color, #4F46E5);
-    background-color: transparent;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: var(--accent-color-alpha, rgba(79, 70, 229, 0.1));
-    }
-
-    &:disabled {
-      color: #9ca3af;
-      cursor: not-allowed;
-    }
-  }
-
   &__selected-section {
     margin-top: 16px;
     border: 1px solid #e5e7eb;
@@ -1384,7 +1430,6 @@ export default {
     border-radius: 20px;
     padding: 6px 12px;
     font-size: 12px;
-    //max-width: 400px;
     transition: background-color 0.2s;
 
     &:hover {
@@ -1450,6 +1495,132 @@ export default {
     &:hover {
       opacity: 0.9;
     }
+  }
+}
+
+/* Global tree node styles - these must be global for proper rendering */
+.tree-node {
+  position: relative;
+  outline: none;
+  contain: layout style;
+
+  &:focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    min-height: 36px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 4px;
+    color: #6b7280;
+    font-size: 12px;
+    transition: background-color 0.15s ease;
+
+    &:focus-visible {
+      outline: 2px solid #4f46e5;
+      border-radius: 4px;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+
+    &-text {
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1;
+    }
+  }
+
+  &__spacer {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  &__checkbox {
+    margin-right: 8px;
+
+    input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__code {
+    font-weight: 500;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  &__description {
+    color: #4b5563;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__children {
+    position: relative;
+  }
+
+  &--selected {
+    > .tree-node__content {
+      background-color: rgba(79, 70, 229, 0.1);
+    }
+  }
+
+  &--highlighted {
+    > .tree-node__content {
+      .tree-node__code,
+      .tree-node__description {
+        background-color: rgba(255, 213, 79, 0.3);
+      }
+    }
+  }
+}
+
+/* Virtualized tree list styles */
+.virtualized-tree-list {
+  height: 100%;
+  overflow-y: auto;
+  
+  &__inner {
+    position: relative;
+    width: 100%;
   }
 }
 </style>
