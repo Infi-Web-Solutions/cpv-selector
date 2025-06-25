@@ -286,12 +286,8 @@ try {
   };
   
   findNodeByCode = (nodes, code) => {
-    console.log('🔍 findNodeByCode called with:', { code, nodesLength: nodes?.length });
-    
     for (const node of nodes) {
-      console.log('🔍 Checking node:', node.code, 'against:', code, 'match:', node.code === code);
       if (node.code === code) {
-        console.log('✅ Found node:', node.code);
         return node;
       }
       if (node.children) {
@@ -299,7 +295,6 @@ try {
         if (found) return found;
       }
     }
-    console.log('❌ Node not found for code:', code);
     return null;
   };
 }
@@ -371,7 +366,6 @@ export default {
 
     // Test function for direct emission (for debugging)
     const testEmitTrigger = (value) => {
-      console.log('🧪 TEST: Direct emission attempt with:', value);
       emit('trigger-event', { 
         name: 'change', 
         event: { value } 
@@ -380,25 +374,14 @@ export default {
 
     // Debounced trigger event emission
     const debouncedEmitTrigger = debounce((value) => {
-      console.log('🔍 Trigger attempt:', {
-        valueLength: value?.length,
-        isInitialized: isInitialized.value,
-        isTreeDataLoaded: isTreeDataLoaded.value,
-        isEmitting: isEmitting.value,
-        lastEmittedValue: lastEmittedValue.value ? 'exists' : 'none',
-        hasEmittedOnce: hasEmittedOnce.value
-      });
-      
       // Prevent duplicate emissions and rapid successive events
       const valueString = JSON.stringify(value);
       if (lastEmittedValue.value === valueString || isEmitting.value) {
-        console.log('❌ Trigger blocked - duplicate or emitting');
         return;
       }
       
       // Prevent empty emissions during initialization only
       if (!isInitialized.value && (!value || value.length === 0)) {
-        console.log('❌ Trigger blocked - not initialized and empty');
         return;
       }
       
@@ -411,11 +394,9 @@ export default {
       // Allow empty emissions after initialization (for deselection)
       // Only prevent empty emissions during the very first load
       if (isInitialized.value && !hasEmittedOnce.value && (!value || value.length === 0)) {
-        console.log('❌ Trigger blocked - first emission and empty');
         return;
       }
       
-      console.log('✅ Emitting trigger event with', value.length, 'items');
       isEmitting.value = true;
       try {
         emit('trigger-event', { 
@@ -451,10 +432,6 @@ export default {
 
     // Use computed for proper reactivity - WeWeb will handle variable binding
     const selectedNodes = computed(() => {
-      console.log('🌳 selectedNodes computed recalculating...');
-      console.log('📊 selectedCodes contents:', Array.from(selectedCodes.value));
-      console.log('🌲 treeData length:', treeData.value.length);
-      
       const nodes = Array.from(selectedCodes.value).map(codeOrObject => {
         // Handle both string codes and object codes (Proxy objects)
         let code;
@@ -463,32 +440,12 @@ export default {
         } else if (codeOrObject && typeof codeOrObject === 'object' && codeOrObject.code) {
           code = codeOrObject.code;
         } else {
-          console.log('❌ Invalid code format:', codeOrObject);
           return null;
         }
         
-        console.log('🔍 Looking for node with code:', code);
         const node = findNodeByCode(treeData.value, code);
-        if (!node) {
-          console.log('❌ Node not found for code:', code, 'treeData length:', treeData.value.length);
-          // Let's also log the first few tree nodes to see what we have
-          if (treeData.value.length > 0) {
-            console.log('🌲 First few tree nodes:', treeData.value.slice(0, 3).map(n => n.code));
-          }
-        } else {
-          console.log('✅ Found node:', node.code, node.description);
-        }
         return node ? { code: node.code, description: node.description } : null;
       }).filter(Boolean);
-      
-      console.log('🌳 selectedNodes computed result:', {
-        selectedCodesSize: selectedCodes.value.size,
-        treeDataLength: treeData.value.length,
-        foundNodesLength: nodes.length,
-        firstFewCodes: Array.from(selectedCodes.value).slice(0, 3),
-        missingNodes: selectedCodes.value.size - nodes.length,
-        foundNodes: nodes.slice(0, 3).map(n => n.code)
-      });
       
       return nodes;
     });
@@ -499,11 +456,6 @@ export default {
         code: node.code,
         description: node.description
       }));
-      
-      console.log('📦 selectedItems computed:', {
-        inputNodesLength: selectedNodes.value.length,
-        outputItemsLength: items.length
-      });
       
       return items;
     });
@@ -538,7 +490,6 @@ export default {
     // Simple computed for selected codes array
     const selectedCodesArray = computed(() => {
       const codesArray = Array.from(selectedCodes.value);
-      // console.log('💡 selectedCodesArray computed recalculated:', codesArray); // REMOVED LOG
       return codesArray;
     });
 
