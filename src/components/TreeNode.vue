@@ -393,7 +393,7 @@
   
     &--selected {
       > .tree-node__content {
-        background-color: rgba(79, 70, 229, 0.1);
+        background-color: var(--primary-light);
       }
     }
   
