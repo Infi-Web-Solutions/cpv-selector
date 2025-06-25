@@ -91,9 +91,6 @@
   width: 1px;
   background-color: #e5e7eb;
 }
-.tree-node--selected > .tree-node__content {
-  background-color: rgba(79, 70, 229, 0.1);
-}
 .tree-node--highlighted > .tree-node__content .tree-node__code,
 .tree-node--highlighted > .tree-node__content .tree-node__description {
   background-color: rgba(255, 213, 79, 0.3);
