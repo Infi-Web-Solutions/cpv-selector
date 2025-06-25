@@ -213,9 +213,12 @@
 <script>
 import './tree-global.css';
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import TreeNode from './components/TreeNode.vue';
+import VirtualizedTreeList from './components/VirtualizedTreeList.vue';
+import SearchInput from './components/SearchInput.vue';
+import SelectedBadges from './components/SelectedBadges.vue';
 
 // Safe import with fallbacks
-let TreeNode, VirtualizedTreeList, SearchInput, SelectedBadges;
 let findMatchingNodes, getAllDescendantCodes, findNodeByCode;
 let debounce;
 
@@ -236,34 +239,6 @@ try {
       timeout = setTimeout(later, wait);
     };
   };
-}
-
-try {
-  TreeNode = require('./components/TreeNode.vue').default;
-} catch (error) {
-  console.warn('TreeNode component not found');
-  TreeNode = null;
-}
-
-try {
-  VirtualizedTreeList = require('./components/VirtualizedTreeList.vue').default;
-} catch (error) {
-  console.warn('VirtualizedTreeList component not found');
-  VirtualizedTreeList = null;
-}
-
-try {
-  SearchInput = require('./components/SearchInput.vue').default;
-} catch (error) {
-  console.warn('SearchInput component not found');
-  SearchInput = null;
-}
-
-try {
-  SelectedBadges = require('./components/SelectedBadges.vue').default;
-} catch (error) {
-  console.warn('SelectedBadges component not found');
-  SelectedBadges = null;
 }
 
 try {
@@ -332,10 +307,10 @@ try {
 export default {
   name: 'CpvTreeSelector',
   components: {
-    ...(TreeNode && { TreeNode }),
-    ...(VirtualizedTreeList && { VirtualizedTreeList }),
-    ...(SearchInput && { SearchInput }),
-    ...(SelectedBadges && { SelectedBadges })
+    TreeNode,
+    VirtualizedTreeList,
+    SearchInput,
+    SelectedBadges
   },
   props: {
     content: {
@@ -357,34 +332,10 @@ export default {
     const isUpdatingFromProps = ref(false);
 
     // Component availability checks with better error handling
-    const treeNodeComponent = ref(false);
-    const virtualizedTreeComponent = ref(false);
-    const searchInputComponent = ref(false);
-    const selectedBadgesComponent = ref(false);
-
-    // Check component availability with retry mechanism
-    const checkComponentAvailability = () => {
-      try {
-        treeNodeComponent.value = !!TreeNode;
-        virtualizedTreeComponent.value = !!VirtualizedTreeList;
-        searchInputComponent.value = !!SearchInput;
-        selectedBadgesComponent.value = !!SelectedBadges;
-        
-        console.log('🔍 Component availability:', {
-          treeNode: treeNodeComponent.value,
-          virtualized: virtualizedTreeComponent.value,
-          searchInput: searchInputComponent.value,
-          selectedBadges: selectedBadgesComponent.value
-        });
-      } catch (error) {
-        console.warn('Error checking component availability:', error);
-        // Set all to false as fallback
-        treeNodeComponent.value = false;
-        virtualizedTreeComponent.value = false;
-        searchInputComponent.value = false;
-        selectedBadgesComponent.value = false;
-      }
-    };
+    const treeNodeComponent = ref(true);
+    const virtualizedTreeComponent = ref(true);
+    const searchInputComponent = ref(true);
+    const selectedBadgesComponent = ref(true);
 
     // Editor state
     const isEditing = computed(() => {
@@ -1107,9 +1058,6 @@ export default {
     onMounted(async () => {
       console.log('🚀 Component mounting...');
       
-      // Check component availability first
-      checkComponentAvailability();
-      
       await loadIcons();
       await loadTreeData();
 
@@ -1185,7 +1133,9 @@ export default {
       toggleNodeSelection,
       clearSelection,
       testEmitTrigger, // For debugging
-      checkComponentAvailability, // For debugging and retry
+      checkComponentAvailability: () => {
+        // This method is now empty as the component handles component availability internally
+      },
       // REMOVED: testJavaScriptAccess,
       // REMOVED: getCurrentSelection,
       // REMOVED: setSelection,
